@@ -65,6 +65,8 @@ export default function App() {
   const [results, setResults] = useState([]);
   const [batchLoading, setBatchLoading] = useState(false);
   const [batchProgress, setBatchProgress] = useState(0);
+  const [batchProcessed, setBatchProcessed] = useState(0);
+  const [batchTotal, setBatchTotal] = useState(0);
   const [batchFile, setBatchFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef(null);
@@ -129,35 +131,69 @@ export default function App() {
     if (e.target.files?.[0]) setBatchFile(e.target.files[0]);
   };
 
-  /* Batch check */
+  /* Batch check with real-time streaming */
   const startBatchCheck = async () => {
     if (!batchFile) {
       toast.error("Selectionnez un fichier d'emails");
       return;
     }
     setBatchLoading(true);
-    setBatchProgress(15);
+    setBatchProgress(0);
+    setBatchProcessed(0);
+    setBatchTotal(0);
+
     const formData = new FormData();
     formData.append("file", batchFile);
 
     try {
-      setBatchProgress(40);
-      const res = await axios.post(`${API}/check-emails-file`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const response = await fetch(`${API}/check-emails-stream`, {
+        method: "POST",
+        body: formData,
       });
-      setBatchProgress(100);
-      if (res.data.results) {
-        setResults(prev => [...res.data.results, ...prev]);
-        toast.success(`${res.data.total} emails verifies`);
-      } else if (res.data.error) {
-        toast.error(res.data.error);
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const data = JSON.parse(line.slice(6));
+
+            if (data.type === "start") {
+              setBatchTotal(data.total);
+              toast.info(`Verification de ${data.total} emails...`);
+            } else if (data.type === "result") {
+              setBatchProcessed(data.processed);
+              setBatchProgress(data.progress);
+              setResults(prev => [data.result, ...prev]);
+            } else if (data.type === "complete") {
+              setBatchProgress(100);
+              toast.success(`${data.total} emails verifies !`);
+            } else if (data.type === "error") {
+              toast.error(data.message);
+            }
+          } catch { /* skip malformed lines */ }
+        }
       }
     } catch (e) {
       toast.error("Erreur lors du traitement du fichier");
     } finally {
       setBatchLoading(false);
       setBatchFile(null);
-      setTimeout(() => setBatchProgress(0), 1500);
+      setTimeout(() => {
+        setBatchProgress(0);
+        setBatchProcessed(0);
+        setBatchTotal(0);
+      }, 3000);
     }
   };
 
@@ -336,19 +372,33 @@ export default function App() {
               </div>
 
               {/* Batch progress */}
-              {batchProgress > 0 && (
+              {(batchProgress > 0 || batchLoading) && (
                 <div className="space-y-2">
                   <div className="relative overflow-hidden rounded-full">
                     <Progress
                       data-testid={TEST_IDS.batchProgressBar}
                       value={batchProgress}
-                      className="h-2 bg-zinc-800"
+                      className="h-2.5 bg-zinc-800"
                     />
                     {batchLoading && <div className="progress-scan absolute inset-0" />}
                   </div>
-                  <p data-testid={TEST_IDS.batchStatusText} className="text-xs text-zinc-500 font-mono text-center">
-                    {batchProgress < 100 ? "Traitement en cours..." : "Termine !"}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p data-testid={TEST_IDS.batchStatusText} className="text-xs text-zinc-400 font-mono">
+                      {batchProgress >= 100 ? (
+                        <span className="text-emerald-400">Termine !</span>
+                      ) : batchLoading ? (
+                        "Verification en cours..."
+                      ) : "En attente..."}
+                    </p>
+                    {batchTotal > 0 && (
+                      <p data-testid={TEST_IDS.batchProcessedCount} className="text-xs font-mono text-zinc-300">
+                        <span className="text-emerald-400">{batchProcessed}</span>
+                        <span className="text-zinc-600"> / </span>
+                        <span>{batchTotal}</span>
+                        <span className="text-zinc-600 ml-1">emails</span>
+                      </p>
+                    )}
+                  </div>
                 </div>
               )}
             </CardContent>

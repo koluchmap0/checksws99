@@ -1,5 +1,6 @@
+import json
 from fastapi import FastAPI, APIRouter, UploadFile, File
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -207,6 +208,57 @@ async def get_checker_script():
     if script_path.exists():
         return FileResponse(script_path, media_type="text/x-python", filename="checker.py")
     return {"error": "Script not found"}
+
+@api_router.post("/check-emails-stream")
+async def check_emails_stream(file: UploadFile = File(...)):
+    """Stream email check results in real-time via SSE."""
+    content = await file.read()
+    text = content.decode("utf-8", errors="ignore")
+    emails = parse_emails_from_text(text, file.filename or "")
+
+    if not emails:
+        async def empty_stream():
+            yield f"data: {json.dumps({'type': 'error', 'message': 'Aucun email valide trouve'})}\n\n"
+        return StreamingResponse(empty_stream(), media_type="text/event-stream")
+
+    total = len(emails)
+
+    async def event_stream():
+        yield f"data: {json.dumps({'type': 'start', 'total': total})}\n\n"
+
+        connector = aiohttp.TCPConnector(limit=5, ssl=False)
+        async with aiohttp.ClientSession(connector=connector) as session:
+            nonce, referer = await extract_nonce(session)
+            processed = 0
+
+            # Process in batches of 5 with delay
+            batch_size = 5
+            for batch_start in range(0, total, batch_size):
+                batch = emails[batch_start:batch_start + batch_size]
+                tasks = [check_email_on_bonmont(session, e, nonce, referer) for e in batch]
+                batch_results = await asyncio.gather(*tasks)
+
+                for result in batch_results:
+                    processed += 1
+                    progress = round(processed / total * 100, 1)
+                    yield f"data: {json.dumps({'type': 'result', 'result': result, 'processed': processed, 'total': total, 'progress': progress})}\n\n"
+
+                if batch_start + batch_size < total:
+                    await asyncio.sleep(0.5)
+
+        yield f"data: {json.dumps({'type': 'complete', 'total': total})}\n\n"
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+            "Connection": "keep-alive",
+        }
+    )
+
+
 
 
 # Include router
