@@ -4,6 +4,7 @@ NOTE: Several endpoints make real HTTP requests to bonmont.com (slow, up to 15-3
 """
 import os
 import io
+import json
 import pytest
 import requests
 
@@ -85,6 +86,69 @@ class TestCheckEmailsFile:
         data = r.json()
         assert data["total"] == 0
         assert "error" in data
+
+
+# ---- SSE streaming batch check (real external) ----
+class TestCheckEmailsStream:
+    def test_stream_two_emails(self, api_client):
+        content = "nonexistent77777@gmail.com\nanother_fake_9876@gmail.com\n"
+        files = {"file": ("emails.txt", io.BytesIO(content.encode()), "text/plain")}
+        r = api_client.post(
+            f"{BASE_URL}/api/check-emails-stream",
+            files=files,
+            timeout=90,
+            stream=True,
+        )
+        assert r.status_code == 200, r.text
+        assert "text/event-stream" in r.headers.get("content-type", "")
+
+        events = []
+        raw_lines = []
+        for raw in r.iter_lines(decode_unicode=True):
+            if not raw:
+                continue
+            raw_lines.append(raw)
+            assert raw.startswith("data: "), f"Line not SSE formatted: {raw}"
+            payload = json.loads(raw[len("data: "):])
+            events.append(payload)
+
+        types = [e.get("type") for e in events]
+        print(f"SSE event types: {types}")
+        # Verify start, result(s), complete
+        assert types[0] == "start", f"first event should be start, got {types}"
+        assert types[0] == "start" and events[0]["total"] == 2
+        assert types[-1] == "complete", f"last event should be complete, got {types}"
+        assert events[-1]["total"] == 2
+
+        result_events = [e for e in events if e.get("type") == "result"]
+        assert len(result_events) == 2, f"expected 2 result events, got {len(result_events)}"
+        for i, re_ev in enumerate(result_events, start=1):
+            assert "result" in re_ev
+            assert "email" in re_ev["result"]
+            assert "status" in re_ev["result"]
+            assert re_ev["processed"] == i
+            assert re_ev["total"] == 2
+            assert "progress" in re_ev
+        # progress should reach 100 on last result
+        assert result_events[-1]["progress"] == 100.0
+
+    def test_stream_empty_file(self, api_client):
+        files = {"file": ("empty.txt", io.BytesIO(b"no-valid-lines\n"), "text/plain")}
+        r = api_client.post(
+            f"{BASE_URL}/api/check-emails-stream",
+            files=files,
+            timeout=30,
+            stream=True,
+        )
+        assert r.status_code == 200, r.text
+        events = []
+        for raw in r.iter_lines(decode_unicode=True):
+            if not raw:
+                continue
+            assert raw.startswith("data: ")
+            events.append(json.loads(raw[len("data: "):]))
+        assert len(events) == 1
+        assert events[0]["type"] == "error"
 
 
 # ---- Checker script download ----
