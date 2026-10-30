@@ -1,0 +1,138 @@
+{
+  "project_title": "Bonmont.com Email Checker Utility Suite",
+  "app_type": "dashboard",
+  "theme": "dark",
+  "archetype": "THE PERFORMANCE PRO / SWISS HIGH-CONTRAST TECH",
+  "fonts": {
+    "heading_font": "Space Grotesk, JetBrains Mono, sans-serif",
+    "body_font": "Plus Jakarta Sans, Inter, sans-serif",
+    "mono_font": "JetBrains Mono, Fira Code, monospace",
+    "usage_rules": {
+      "H1": "text-3xl md:text-5xl font-extrabold tracking-tight font-heading",
+      "H2": "text-xl md:text-3xl font-bold tracking-tight font-heading",
+      "H3": "text-lg md:text-xl font-semibold tracking-normal",
+      "H4": "text-base font-semibold",
+      "body": "text-sm md:text-base leading-relaxed text-zinc-300 font-sans",
+      "code_block": "font-mono text-xs md:text-sm bg-zinc-950/80 text-emerald-400 p-4 rounded-lg border border-zinc-800/80 overflow-x-auto",
+      "labels": "text-xs uppercase font-mono tracking-widest text-zinc-400 font-medium"
+    }
+  },
+  "colors": {
+    "background": "#09090b",
+    "surface": "#121215",
+    "surface_elevated": "#18181b",
+    "border_subtle": "#27272a",
+    "border_highlight": "#3f3f46",
+    "primary_emerald": "#10b981",
+    "primary_emerald_hover": "#059669",
+    "valid_green": "#22c55e",
+    "valid_green_bg": "rgba(34, 197, 94, 0.1)",
+    "invalid_red": "#ef4444",
+    "invalid_red_bg": "rgba(239, 68, 68, 0.1)",
+    "warning_amber": "#f59e0b",
+    "text_primary": "#f4f4f5",
+    "text_secondary": "#a1a1aa",
+    "text_muted": "#71717a",
+    "accent_cyan": "#06b6d4"
+  },
+  "layout_strategy": {
+    "header": {
+      "type": "Crystal Glass Sticky Header",
+      "classes": "sticky top-0 z-50 backdrop-blur-md bg-zinc-950/80 border-b border-zinc-800 px-4 lg:px-8 py-3 flex items-center justify-between",
+      "branding": "Bonmont.com Email Auditor CLI & Web Tool with live status ping"
+    },
+    "grid_system": "Bento Grid Mode B (High Density Analytical)",
+    "sections": [
+      {
+        "id": "hero_stats",
+        "title": "Real-time Auditing Overview",
+        "layout": "grid grid-cols-1 md:grid-cols-4 gap-4"
+      },
+      {
+        "id": "checker_workspace",
+        "title": "Email Checker & File Batch Processing",
+        "layout": "grid grid-cols-1 lg:grid-cols-12 gap-6"
+      },
+      {
+        "id": "cli_documentation",
+        "title": "Python CLI Script & Automation Guide",
+        "layout": "w-full max-w-7xl mx-auto space-y-6"
+      }
+    ]
+  },
+  "key_components": {
+    "SingleEmailInput": {
+      "description": "Instant single email query targeting bonmont.com auth status route",
+      "data_testids": [
+        "single-email-input",
+        "single-email-submit-button",
+        "single-email-result-badge"
+      ]
+    },
+    "FileUploadDropzone": {
+      "description": "Drag-and-drop CSV or TXT batch email list uploader with validation pre-check",
+      "data_testids": [
+        "file-upload-dropzone",
+        "file-input-hidden",
+        "start-batch-check-button",
+        "cancel-batch-button"
+      ]
+    },
+    "BatchProgressBar": {
+      "description": "Live progress percentage, request counter, ETA and animated trace beam",
+      "data_testids": [
+        "batch-progress-bar",
+        "batch-status-text",
+        "batch-processed-count"
+      ]
+    },
+    "ResultsTable": {
+      "description": "High density table with filtering (All, Valid, Invalid, Pending), search bar, pagination & batch selection",
+      "data_testids": [
+        "results-table",
+        "results-search-input",
+        "filter-all-button",
+        "filter-valid-button",
+        "filter-invalid-button",
+        "export-csv-button",
+        "clear-results-button"
+      ]
+    },
+    "CliInstructionPanel": {
+      "description": "Tabs showing CLI python script snippet, installation instructions, usage examples, and raw script download",
+      "data_testids": [
+        "cli-tab-python-script",
+        "cli-tab-instructions",
+        "cli-copy-code-button",
+        "cli-download-script-button"
+      ]
+    }
+  },
+  "media_assets": {
+    "server_matrix_image": {
+      "url": "https://images.unsplash.com/photo-1518773553398-650c184e0bb3?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "alt": "Cybersecurity server matrix screen",
+      "purpose": "Hero background accent / CLI header banner visual"
+    }
+  },
+  "testing_requirements": {
+    "data_testid_convention": "kebab-case, role-based, explicit on interactive elements",
+    "mandatory_ids": [
+      "app-header",
+      "single-email-input",
+      "single-email-submit-button",
+      "file-upload-dropzone",
+      "results-table",
+      "export-csv-button",
+      "cli-download-script-button"
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Use JavaScript (.js/.jsx) for React components, NOT TypeScript (.tsx).",
+    "Implement full Python CLI script content download and copy-to-clipboard functionality.",
+    "The bonmont.com URL endpoint pattern MUST check http status/redirect query parameter 'opinions-login-error=invalid_email' to flag email as invalid.",
+    "Include real batch processing state management (processing chunk by chunk with delay control or concurrency slider).",
+    "Provide sample CSV/TXT file download for user testing directly from the UI.",
+    "Ensure high accessibility standards with explicit APCA contrast ratios, key focus outlines, and Sonner notifications for actions."
+  ]
+}

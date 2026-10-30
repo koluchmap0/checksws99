@@ -1,0 +1,30 @@
+export const TEST_IDS = {
+  appHeader: "app-header",
+  singleEmailInput: "single-email-input",
+  singleEmailSubmitButton: "single-email-submit-button",
+  singleEmailResultBadge: "single-email-result-badge",
+  fileUploadDropzone: "file-upload-dropzone",
+  fileInputHidden: "file-input-hidden",
+  startBatchCheckButton: "start-batch-check-button",
+  batchProgressBar: "batch-progress-bar",
+  batchStatusText: "batch-status-text",
+  batchProcessedCount: "batch-processed-count",
+  resultsTable: "results-table",
+  resultsSearchInput: "results-search-input",
+  filterAllButton: "filter-all-button",
+  filterValidButton: "filter-valid-button",
+  filterInvalidButton: "filter-invalid-button",
+  exportCsvButton: "export-csv-button",
+  clearResultsButton: "clear-results-button",
+  cliTabPythonScript: "cli-tab-python-script",
+  cliTabInstructions: "cli-tab-instructions",
+  cliCopyCodeButton: "cli-copy-code-button",
+  cliDownloadScriptButton: "cli-download-script-button",
+  statTotal: "stat-total",
+  statValid: "stat-valid",
+  statInvalid: "stat-invalid",
+  statError: "stat-error",
+};
+
+// Keep backward compat
+export const HOME = { emergentLink: "emergent-link" };

@@ -1,0 +1,138 @@
+/* Bonmont Email Checker - Custom Styles */
+
+.font-heading {
+    font-family: 'Outfit', sans-serif;
+}
+
+.font-mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Glass header */
+.glass-header {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(9, 9, 11, 0.82);
+    border-bottom: 1px solid rgba(39, 39, 42, 0.6);
+}
+
+/* Stat card glow */
+.stat-card-valid {
+    border-color: rgba(34, 197, 94, 0.2);
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.06) 0%, rgba(9, 9, 11, 0) 60%);
+}
+.stat-card-invalid {
+    border-color: rgba(239, 68, 68, 0.2);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.06) 0%, rgba(9, 9, 11, 0) 60%);
+}
+.stat-card-error {
+    border-color: rgba(245, 158, 11, 0.2);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.06) 0%, rgba(9, 9, 11, 0) 60%);
+}
+.stat-card-total {
+    border-color: rgba(6, 182, 212, 0.2);
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.06) 0%, rgba(9, 9, 11, 0) 60%);
+}
+
+/* Upload dropzone */
+.dropzone-area {
+    border: 2px dashed rgba(39, 39, 42, 0.8);
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.dropzone-area:hover,
+.dropzone-area.drag-active {
+    border-color: rgba(16, 185, 129, 0.5);
+    background-color: rgba(16, 185, 129, 0.04);
+}
+
+/* Code block */
+.code-block {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8125rem;
+    line-height: 1.7;
+    background: rgba(9, 9, 11, 0.9);
+    border: 1px solid rgba(39, 39, 42, 0.6);
+    border-radius: 0.5rem;
+    overflow-x: auto;
+}
+.code-block code {
+    color: #a1a1aa;
+}
+.code-block .code-keyword {
+    color: #c084fc;
+}
+.code-block .code-string {
+    color: #34d399;
+}
+.code-block .code-comment {
+    color: #52525b;
+}
+.code-block .code-function {
+    color: #60a5fa;
+}
+
+/* Pulse animation for checking state */
+@keyframes pulse-emerald {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+}
+.pulse-check {
+    animation: pulse-emerald 1.5s ease-in-out infinite;
+}
+
+/* Status badge */
+.status-valid {
+    background: rgba(34, 197, 94, 0.12);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.25);
+}
+.status-invalid {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+.status-error {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+/* Stagger entrance animation */
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.animate-fade-up {
+    animation: fade-up 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+/* Scan line effect on progress */
+@keyframes scan-line {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+}
+.progress-scan::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.3), transparent);
+    animation: scan-line 1.5s ease-in-out infinite;
+}
+
+/* Table row hover */
+.result-row {
+    transition: background-color 0.15s ease;
+}
+.result-row:hover {
+    background-color: rgba(39, 39, 42, 0.3);
+}
